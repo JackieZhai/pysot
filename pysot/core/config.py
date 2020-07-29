@@ -47,8 +47,6 @@ __C.TRAIN.OUTPUT_SIZE = 25
 
 __C.TRAIN.RESUME = ''
 
-__C.TRAIN.PRETRAINED = ''
-
 __C.TRAIN.LOG_DIR = './logs'
 
 __C.TRAIN.SNAPSHOT_DIR = './snapshot'
@@ -135,7 +133,7 @@ __C.DATASET.NEG = 0.2
 # improve tracking performance for otb100
 __C.DATASET.GRAY = 0.0
 
-__C.DATASET.NAMES = ('VID', 'COCO', 'DET', 'YOUTUBEBB')
+__C.DATASET.NAMES = ('VID', 'COCO', 'DET', 'YOUTUBEBB', 'MOT')
 
 __C.DATASET.VID = CN()
 __C.DATASET.VID.ROOT = 'training_dataset/vid/crop511'
@@ -288,3 +286,6 @@ __C.TRACK.MASK_THERSHOLD = 0.30
 
 # Mask output size
 __C.TRACK.MASK_OUTPUT_SIZE = 127
+
+# alpha factor
+__C.TRACK.FACTOR = 0.2 #added by bao
