@@ -11,6 +11,7 @@ import torch
 import numpy as np
 from glob import glob
 from imutils.video import FPS
+from tqdm import tqdm
 
 from pysot.core.config import cfg
 from pysot.models.model_builder import ModelBuilder
@@ -79,10 +80,11 @@ def main():
     else:
         video_name = 'webcam'
     cv2.namedWindow(video_name, cv2.WND_PROP_FULLSCREEN)
-    for num, frame in enumerate(get_frames(args.video_name)):
+    for num, frame in tqdm(enumerate(get_frames(args.video_name))):
         if first_frame:
             try:
-                init_rect = cv2.selectROI(video_name, frame, False, False)
+                # init_rect = cv2.selectROI(video_name, frame, False, False)
+                init_rect = args.roi
             except:
                 exit()
             tracker.init(frame, init_rect)
