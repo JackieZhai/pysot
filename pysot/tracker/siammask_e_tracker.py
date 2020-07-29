@@ -258,5 +258,6 @@ class SiamMaskETracker(SiamRPNTracker):
                 'bbox': bbox,
                 'best_score': best_score,
                 'mask': mask_in_img,
-                'polygon': polygon
+                'polygon': polygon,
+                'xf': outputs['xf']
                }
