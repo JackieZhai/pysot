@@ -104,4 +104,4 @@ venv.bak/
 .mypy_cache/
 
 testing_dataset/*
-experiments
+experiments/siammaske_r50_l3/model.pth
