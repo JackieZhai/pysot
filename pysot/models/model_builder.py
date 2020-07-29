@@ -43,13 +43,13 @@ class ModelBuilder(nn.Module):
     def template(self, z):
         zf = self.backbone(z)
         import numpy as np
-        print('zf stage 1: ', np.array(zf).shape)
+        print('zf stage 1: ', np.array(zf).cpu().shape)
         if cfg.MASK.MASK:
             zf = zf[-1]
-        print('zf stage 2: ', np.array(zf).shape)
+        print('zf stage 2: ', np.array(zf).cpu().shape)
         if cfg.ADJUST.ADJUST:
             zf = self.neck(zf)
-        print('zf stage 3: ', np.array(zf).shape)
+        print('zf stage 3: ', np.array(zf).cpu().shape)
         self.zf = zf
 
     def track(self, x):
