@@ -98,8 +98,7 @@ def main():
                               True, (0, 255, 0), 3)
                 mask = ((outputs['mask'] > cfg.TRACK.MASK_THERSHOLD) * 255)
                 mask = mask.astype(np.uint8)
-                mask = np.stack([mask, mask*255, mask]).transpose(1, 2, 0)
-                frame = cv2.addWeighted(frame, 0.77, mask, 0.23, -1)
+                frame[:,:,2] = (mask > 0) * 255 *0.75 + (mask == 0) * frame[:,:,2]
             else:
                 bbox = list(map(int, outputs['bbox']))
                 cv2.rectangle(frame, (bbox[0], bbox[1]),
