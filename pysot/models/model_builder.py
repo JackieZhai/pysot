@@ -42,7 +42,6 @@ class ModelBuilder(nn.Module):
 
     def template(self, z):
         zf = self.backbone(z)
-        import numpy as np
         # print('zf stage 1: ', len(zf), len(zf[0]), len(zf[0][0]), len(zf[0][0][0]))
         if cfg.MASK.MASK:
             zf = zf[-1]
@@ -66,8 +65,7 @@ class ModelBuilder(nn.Module):
         return {
                 'cls': cls,
                 'loc': loc,
-                'mask': mask if cfg.MASK.MASK else None,
-                'xf': xf
+                'mask': mask if cfg.MASK.MASK else None
                }
 
     def mask_refine(self, pos):

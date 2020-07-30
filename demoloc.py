@@ -8,6 +8,7 @@ import argparse
 
 import cv2
 import torch
+from torch.autograd import Variable
 import numpy as np
 from glob import glob
 from imutils.video import FPS
@@ -16,6 +17,7 @@ from tqdm import tqdm
 from pysot.core.config import cfg
 from pysot.models.model_builder import ModelBuilder
 from pysot.tracker.tracker_builder import build_tracker
+from updatenet.updatenet import UpdateResNet
 
 torch.set_num_threads(1)
 
@@ -70,16 +72,21 @@ def main():
     model.load_state_dict(torch.load(args.snapshot,
         map_location=lambda storage, loc: storage.cpu()))
     model.eval().to(device)
+    updatenet = UpdateResNet()    
+    update_model=torch.load('updatenet/checkpoint_lr46_30.pth.tar')['state_dict']
+    updatenet.load_state_dict(update_model)
+    updatenet.eval().to(device)
 
     # build tracker
     tracker = build_tracker(model)
 
     first_frame = True
+    zf_pre = None
     if args.video_name:
         video_name = args.video_name.split('/')[-1].split('.')[0]
     else:
         video_name = 'webcam'
-    cv2.namedWindow(video_name, cv2.WND_PROP_FULLSCREEN)
+    # cv2.namedWindow(video_name, cv2.WND_PROP_FULLSCREEN)
     for num, frame in tqdm(enumerate(get_frames(args.video_name))):
         if first_frame:
             try:
@@ -88,10 +95,16 @@ def main():
             except:
                 exit()
             tracker.init(frame, init_rect)
+            zf_pre = tracker.model.zf.cpu().data
             first_frame = False
             fps_cal = FPS().start()
         else:
             outputs = tracker.track(frame)
+            update_1 = torch.cat((Variable(tracker.model.zf).cuda(), Variable(zf_pre).cuda(), outputs['zf_cur']), 1)
+            update_2 = Variable(tracker.model.zf).cuda()
+            zf_new = updatenet(update_1, update_2)
+            tracker.model.zf = zf_new
+            zf_pre = outputs['zf_cur'].cpu().data
             if 'polygon' in outputs:
                 polygon = np.array(outputs['polygon']).astype(np.int32)
                 cv2.polylines(frame, [polygon.reshape((-1, 1, 2))],

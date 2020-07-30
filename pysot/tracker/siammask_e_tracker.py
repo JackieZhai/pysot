@@ -253,11 +253,25 @@ class SiamMaskETracker(SiamRPNTracker):
         
         polygon = self._mask_post_processing(mask_in_img)
         polygon = polygon.flatten().tolist()
+
+        # calculate predict z
+        pz_center_pos = np.array([bbox[0]+(bbox[2]-1)/2, bbox[1]+(bbox[3]-1)/2])
+        pz_size = np.array([bbox[2], bbox[3]])
+        w_z = pz_size[0] + cfg.TRACK.CONTEXT_AMOUNT * np.sum(pz_size)
+        h_z = pz_size[1] + cfg.TRACK.CONTEXT_AMOUNT * np.sum(pz_size)
+        s_z = round(np.sqrt(w_z * h_z))
+        pz_channel_average = np.mean(img, axis=(0, 1))
+        z_crop = self.get_subwindow(img, pz_center_pos, cfg.TRACK.EXEMPLAR_SIZE, s_z, pz_channel_average)
+        zf_cur = self.model.backbone(z_crop)
+        if cfg.MASK.MASK:
+            zf_cur = zf_cur[-1]
+        if cfg.ADJUST.ADJUST:
+            zf_cur = self.model.neck(zf_cur)
         
         return {
                 'bbox': bbox,
                 'best_score': best_score,
                 'mask': mask_in_img,
                 'polygon': polygon,
-                'xf': outputs['xf']
+                'zf_cur': zf_cur
                }
