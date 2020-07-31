@@ -24,6 +24,7 @@ torch.set_num_threads(1)
 parser = argparse.ArgumentParser(description='tracking demo')
 parser.add_argument('--config', type=str, default='experiments/siammaske_r50_l3/config.yaml', help='config file')
 parser.add_argument('--snapshot', type=str, default='experiments/siammaske_r50_l3/model.pth', help='model name')
+parser.add_argument('--snapshot_update', type=str, default='updatenet/checkpoint_res_lr46_9.pth.tar', help='u-pdate model name')
 parser.add_argument('--video_name', type=str, default='../updatenet/images', help='videos or image files')
 parser.add_argument('--roi', type=tuple, default=(631,315,128,123), help='(x, y, w, h')
 args = parser.parse_args()
@@ -73,7 +74,7 @@ def main():
         map_location=lambda storage, loc: storage.cpu()))
     model.eval().to(device)
     updatenet = UpdateResNet()    
-    update_model=torch.load('updatenet/checkpoint_lr46_30.pth.tar')['state_dict']
+    update_model=torch.load(args.snapshot_update)['state_dict']
     updatenet.load_state_dict(update_model)
     updatenet.eval().to(device)
 
